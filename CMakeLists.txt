@@ -16,11 +16,13 @@ endif()
 
 option(SOTC_BUILD_TESTS "Build unit tests" OFF)
 option(SOTC_ENABLE_IPO "Enable interprocedural optimisation when supported" OFF)
+option(SOTC_USE_OPENSSL "Link against OpenSSL for TLS support" ON)
 
 include(GNUInstallDirs)
 include(CMakePrintHelpers OPTIONAL)
 include(CheckCXXCompilerFlag OPTIONAL)
 include(SOTCCompilerWarnings)
+include(SOTCDependencies)
 
 add_library(project_warnings INTERFACE)
 sotc_set_project_warnings(project_warnings)
@@ -48,6 +50,9 @@ else()
     find_package(Threads REQUIRED)
     target_link_libraries(project_options INTERFACE Threads::Threads)
 endif()
+
+add_library(project_dependencies INTERFACE)
+sotc_configure_dependencies(project_dependencies)
 
 if(SOTC_ENABLE_IPO)
     include(CheckIPOSupported)

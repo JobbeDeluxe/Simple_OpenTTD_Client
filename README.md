@@ -9,7 +9,7 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 
 ## Repository Layout
 - `cmake/` – CMake toolchain helpers and platform specific configuration.
-- `external/` – Third-party dependencies (as Git submodules or source drops).
+- `vcpkg.json` – Manifest describing third-party dependencies managed by vcpkg.
 - `src/` – Client implementation sources.
 - `include/` – Public headers.
 - `docs/` – Design documents and migration notes.
@@ -21,9 +21,22 @@ The project is currently a scaffold. See `docs/ROADMAP.md` for the implementatio
 ## Building
 The project uses CMake 3.21 or newer. Out-of-tree builds are recommended to keep generated artefacts separate from the source tree.
 
+### Dependency bootstrap
+Dependencies are managed through the [`vcpkg`](https://github.com/microsoft/vcpkg) manifest in this repository. Install vcpkg and
+set the `VCPKG_ROOT` environment variable, then let CMake pick up the manifest automatically:
+
+```bash
+git clone https://github.com/microsoft/vcpkg.git
+./vcpkg/bootstrap-vcpkg.sh # or bootstrap-vcpkg.bat on Windows
+export VCPKG_ROOT="$(pwd)/vcpkg"
+```
+
+You can pre-fetch all libraries with `vcpkg install` or allow CMake to install them on demand during the first configure.
+
 ### Linux (GCC/Clang)
 ```bash
-cmake -S . -B build/linux -G Ninja
+cmake -S . -B build/linux -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
 cmake --build build/linux
 ```
 
@@ -31,11 +44,15 @@ The configuration enables POSIX threads automatically. Enable IPO/LTO with `-DSO
 
 ### Windows (MSVC)
 ```powershell
-cmake -S . -B build\msvc -G "Visual Studio 17 2022" -A x64
+$env:VCPKG_ROOT = "C:\path\to\vcpkg"
+cmake -S . -B build\msvc -G "Visual Studio 17 2022" -A x64 \
+  -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake"
 cmake --build build\msvc --config Release
 ```
 
-The generated Visual Studio solution configures common warnings and disables legacy CRT deprecation noise. You can enable IPO with `/p:SOTC_ENABLE_IPO=ON` or set the option from the CMake GUI.
+The generated Visual Studio solution configures common warnings and disables legacy CRT deprecation noise. You can enable IPO with `/p:SOTC_ENABLE_IPO=ON` or set the option from the CMake GUI. TLS
+support is enabled by default; disable it with `-DSOTC_USE_OPENSSL=OFF` if you do not need secure transports or prefer a lighter
+dependency set.
 
 ## Contributing
 1. Fork and clone the repository.

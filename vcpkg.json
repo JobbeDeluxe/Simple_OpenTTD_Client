@@ -1,0 +1,14 @@
+{
+  "name": "simple-openttd-client",
+  "version-string": "0.1.0",
+  "builtin-baseline": "f7423ee180c4b7f40d43402c2feb3859161ef625",
+  "dependencies": [
+    "sdl2",
+    "sdl2-image",
+    "sdl2-ttf",
+    "curl",
+    "zlib",
+    "openssl",
+    "spdlog"
+  ]
+}

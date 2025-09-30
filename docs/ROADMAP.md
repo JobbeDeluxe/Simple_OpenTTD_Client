@@ -10,7 +10,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 
 ## Phase 1 – Build System & Tooling
 - [x] Create CMake-based build configuration for Windows (MSVC) and Linux.
-- [ ] Integrate vcpkg or FetchContent for dependencies (SDL2, libcurl, zlib, etc.).
+- [x] Integrate vcpkg or FetchContent for dependencies (SDL2, libcurl, zlib, etc.).
 - [ ] Set up continuous integration for Windows and Linux builds.
 - [ ] Provide developer setup scripts and documentation.
 
