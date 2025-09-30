@@ -4,7 +4,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 
 ## Phase 0 – Research & Planning (Current)
 - [x] Establish repository scaffold and documentation structure.
-- [ ] Inventory `cmclient` architecture (modules, dependencies, build system).
+- [x] Inventory `cmclient` architecture (modules, dependencies, build system).
 - [ ] Map OpenTTD 14.1 protocol and API deltas compared to the version targeted by `cmclient`.
 - [ ] Decide on dependency management (vendored, submodules, package manager).
 
