@@ -16,7 +16,7 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 - `tools/` – Developer utilities and scripts.
 
 ## Current Status
-The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation plan and `docs/REFERENCES.md` for collected research material on the legacy client and OpenTTD 14.1 APIs.
+The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation plan, `docs/REFERENCES.md` for collected research material, and `docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences between OpenTTD 1.10.x and 14.1.
 
 ## Building (WIP)
 ```bash
