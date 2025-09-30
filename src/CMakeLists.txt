@@ -11,6 +11,7 @@ target_link_libraries(sotc_core
     PUBLIC
         project_options
         project_warnings
+        project_dependencies
 )
 
 add_executable(sotc
