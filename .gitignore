@@ -1,0 +1,8 @@
+/build/
+/.vs/
+/.vscode/
+CMakeCache.txt
+CMakeFiles/
+*.sln
+*.vcxproj*
+compile_commands.json
