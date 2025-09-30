@@ -8,7 +8,8 @@ target_include_directories(sotc_core
 )
 
 target_link_libraries(sotc_core
-    PRIVATE
+    PUBLIC
+        project_options
         project_warnings
 )
 
