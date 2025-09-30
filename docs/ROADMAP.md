@@ -6,7 +6,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [x] Establish repository scaffold and documentation structure.
 - [x] Inventory `cmclient` architecture (modules, dependencies, build system).
 - [x] Map OpenTTD 14.1 protocol and API deltas compared to the version targeted by `cmclient`.
-- [ ] Decide on dependency management (vendored, submodules, package manager).
+- [x] Decide on dependency management (vcpkg manifest with overlay ports, FetchContent for small header-only libs).
 
 ## Phase 1 – Build System & Tooling
 - [ ] Create CMake-based build configuration for Windows (MSVC) and Linux.
