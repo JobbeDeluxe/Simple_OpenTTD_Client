@@ -29,12 +29,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends autoconf automake libtool libltdl-dev gettext pkg-config python3-jinja2
 
-      - name: Configure CMake
+      - name: Configure CMake (Unix)
+        if: matrix.os != 'windows-latest'
         shell: bash
         run: |
           cmake -S . -B build \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
-      - name: Build
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: >-
+          cmake -S . -B build -G "Visual Studio 17 2022"
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build (Unix)
+        if: matrix.os != 'windows-latest'
         shell: bash
+        run: cmake --build build --config Release
+
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: cmake --build build --config Release
