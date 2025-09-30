@@ -18,13 +18,24 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 ## Current Status
 The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation plan, `docs/REFERENCES.md` for collected research material, and `docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences between OpenTTD 1.10.x and 14.1.
 
-## Building (WIP)
+## Building
+The project uses CMake 3.21 or newer. Out-of-tree builds are recommended to keep generated artefacts separate from the source tree.
+
+### Linux (GCC/Clang)
 ```bash
-cmake -S . -B build
-cmake --build build
+cmake -S . -B build/linux -G Ninja
+cmake --build build/linux
 ```
 
-Windows builds are not yet configured; once CI is in place, instructions for MSVC will be added.
+The configuration enables POSIX threads automatically. Enable IPO/LTO with `-DSOTC_ENABLE_IPO=ON` when supported by your toolchain.
+
+### Windows (MSVC)
+```powershell
+cmake -S . -B build\msvc -G "Visual Studio 17 2022" -A x64
+cmake --build build\msvc --config Release
+```
+
+The generated Visual Studio solution configures common warnings and disables legacy CRT deprecation noise. You can enable IPO with `/p:SOTC_ENABLE_IPO=ON` or set the option from the CMake GUI.
 
 ## Contributing
 1. Fork and clone the repository.
