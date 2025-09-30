@@ -23,6 +23,12 @@ jobs:
         with:
           vcpkgJsonGlob: vcpkg.json
 
+      - name: Install autotools dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends autoconf automake libtool libltdl-dev gettext pkg-config python3-jinja2
+
       - name: Configure CMake
         shell: bash
         run: |
