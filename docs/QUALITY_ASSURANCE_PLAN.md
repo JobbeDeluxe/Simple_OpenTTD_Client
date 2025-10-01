@@ -49,6 +49,9 @@ server-backed scenarios are developed.
 Purpose: verify end-to-end playability, UI expectations, and behavioural
 regressions before cutting a release.
 
+Track executions in `docs/MANUAL_TEST_CHECKLIST.md`. The spreadsheet-style table
+captures tester initials, run dates, and notes for each scenario listed below:
+
 - Launch the client in desktop mode, connect to a public server, and create a
   company.
 - Validate UI panels: settings, coordinator options, company list, and message
@@ -70,15 +73,17 @@ regressions before cutting a release.
     documentation.
   - `SimpleOpenTTDClient-<version>-Setup.exe` built via `WiX` or `NSIS`, with
     code-signing optional for internal builds.
-- Add a `tools/package_windows.ps1` script that automates the packaging steps
-  and collects dependent DLLs via `vcpkg` manifest inspection.
+- Use `tools/package_windows.ps1` to gather compiled binaries, dependency DLLs,
+  and release notes into the ZIP artefact. The script also reserves a spot for
+  the NSIS installer implementation.
 - Verify the installer on a clean Windows VM (no Visual Studio runtime) and
   document any prerequisite redistributables.
 
 ## Release Notes & Documentation
 
 - Draft `docs/RELEASE_NOTES_<version>.md` summarising new features, known
-  issues, and upgrade considerations.
+  issues, and upgrade considerations. Version 0.1.0 notes have been seeded in
+  `docs/RELEASE_NOTES_0.1.0.md`.
 - Update the main `README.md` with download links once binaries are hosted.
 - Prepare a `CHANGELOG.md` entry following Keep a Changelog format.
 - Announce availability on the project website or forum with clear upgrade
