@@ -14,3 +14,16 @@ set_tests_properties(
     PROPERTIES
         LABELS "integration"
 )
+
+add_test(
+    NAME integration.invalid_inputs
+    COMMAND ${Python3_EXECUTABLE} ${SOTC_INTEGRATION_TEST_DIR}/test_invalid_inputs.py
+            --binary $<TARGET_FILE:sotc>
+)
+
+set_tests_properties(
+    integration.invalid_inputs
+    PROPERTIES
+        LABELS "integration"
+)
+
