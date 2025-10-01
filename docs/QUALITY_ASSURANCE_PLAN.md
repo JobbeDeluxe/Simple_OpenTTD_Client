@@ -28,6 +28,16 @@ The goal is to exercise a real OpenTTD 14.1 server using scripted scenarios.
      artefacts, run the labelled integration suite, and store the logs.
    - Gate merges into the release branch on the automated suite.
 
+### Current Status
+
+The repository includes an initial integration harness at
+`tests/integration/test_launch_options_dump.py` wired into CTest under the
+`integration` label. It launches the client with a representative configuration
+file, applies CLI overrides, and asserts that both `--dump-launch-options` and
+`--dump-registration` outputs match the expected OpenTTD 14.1 coordinator
+schema. This provides early regression coverage for configuration parsing and
+payload generation while the full server-backed suite is being implemented.
+
 ## Manual Gameplay Checklist
 
 Purpose: verify end-to-end playability, UI expectations, and behavioural
