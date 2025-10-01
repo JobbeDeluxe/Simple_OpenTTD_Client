@@ -21,8 +21,10 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation
 plan, `docs/REFERENCES.md` for collected research material, and
 `docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences
-between OpenTTD 1.10.x and 14.1. The `sotc::network::CoordinatorClient`
-component included in the scaffold emits handshake payloads that match the 14.1
+between OpenTTD 1.10.x and 14.1. Use `docs/PHASE3_EXECUTION_HUB.md` as the
+central status tracker that summarises the active Phase 3 workstreams and links
+out to detailed checklists. The `sotc::network::CoordinatorClient` component
+included in the scaffold emits handshake payloads that match the 14.1
 coordinator protocol versions and limits, making it a foundation for the Phase 2
 networking work. The command-line launcher understands headless/dedicated
 options and exposes machine-readable dumps for integration with orchestration
