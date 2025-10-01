@@ -1,6 +1,8 @@
 add_library(sotc_core STATIC
     client_app.cpp
+    gui/coordinator_settings_window.cpp
     gui/configuration_preview.cpp
+    gui/session_formatting.cpp
     network/coordinator_client.cpp
 )
 

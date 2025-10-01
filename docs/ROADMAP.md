@@ -17,7 +17,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 ## Phase 2 – Core Client Port
 - [x] Port networking layer to OpenTTD 14.1 protocol changes.
 - [x] Update serialization/deserialization logic.
-- [ ] Implement GUI adjustments for new features.
+- [x] Implement GUI adjustments for new features.
   - [x] Prototype coordinator-aware configuration panels in the client shell.
   - [x] Render coordinator, access-control, and connectivity settings in the textual preview.
 - [x] Ensure compatibility with dedicated server management tools.
