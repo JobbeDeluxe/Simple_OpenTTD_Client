@@ -71,6 +71,42 @@ def test_invalid_config_flag(binary: pathlib.Path) -> None:
         assert_failure(result, "Invalid allow_stun value")
 
 
+def test_unknown_config_key(binary: pathlib.Path) -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config_path = pathlib.Path(tmpdir) / "sotc_unknown.cfg"
+        config_path.write_text(
+            textwrap.dedent(
+                """
+                # Typo in configuration key should be rejected
+                alow_direct = true
+                """
+            ).strip()
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = run_client(binary, "--config", str(config_path), "--dump-launch-options")
+        assert_failure(result, "Unknown configuration key")
+
+
+def test_duplicate_config_key(binary: pathlib.Path) -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config_path = pathlib.Path(tmpdir) / "sotc_duplicate.cfg"
+        config_path.write_text(
+            textwrap.dedent(
+                """
+                allow_direct = true
+                allow_direct = false
+                """
+            ).strip()
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = run_client(binary, "--config", str(config_path), "--dump-launch-options")
+        assert_failure(result, "Duplicate configuration key")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--binary", type=pathlib.Path, required=True, help="Path to the sotc client executable")
@@ -78,6 +114,8 @@ def main() -> int:
 
     test_invalid_heartbeat(args.binary)
     test_invalid_config_flag(args.binary)
+    test_unknown_config_key(args.binary)
+    test_duplicate_config_key(args.binary)
     return 0
 
 

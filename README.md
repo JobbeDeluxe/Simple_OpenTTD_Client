@@ -146,6 +146,9 @@ progress and coverage expansion in `docs/QUALITY_ASSURANCE_PLAN.md` and consult
 
 ## Release Preparation
 
+- Track in-flight and historical updates in
+  [`docs/CHANGELOG.md`](docs/CHANGELOG.md), formatted according to the Keep a
+  Changelog convention.
 - Draft release notes live in `docs/RELEASE_NOTES_0.1.0.md` and will be updated
   as Phase 3 items are signed off.
 - Manual verification tasks are tracked in `docs/MANUAL_TEST_CHECKLIST.md` to

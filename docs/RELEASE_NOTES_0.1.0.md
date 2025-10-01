@@ -15,6 +15,19 @@ criteria described in `docs/QUALITY_ASSURANCE_PLAN.md` are satisfied.
 - Updated CLI workflows with `--dump-launch-options` and
   `--dump-registration` summaries that align with the coordinator schemas.
 
+## Testing Progress
+
+- CLI-focused integration tests continue to validate configuration precedence
+  and coordinator payload generation while the dedicated server harness is being
+  containerised for CI.
+- Company creation, coordinator registration, and disconnect scenarios have
+  been drafted for the upcoming regression suite once the OpenTTD 14.1 image is
+  available in the internal registry.
+- Manual gameplay sign-off is scheduled: a desktop session is booked for the
+  week of 2024-06-10, followed by a headless verification pass in the week of
+  2024-06-17. Findings will be recorded in
+  `docs/MANUAL_TEST_CHECKLIST.md`.
+
 ## Fixed Issues
 
 - Normalise configuration parsing between file-based and command-line inputs.
@@ -24,10 +37,13 @@ criteria described in `docs/QUALITY_ASSURANCE_PLAN.md` are satisfied.
 ## Known Issues
 
 - Automated gameplay scenarios that exercise a live OpenTTD server are still in
-  progress. Until they land, only the CLI-focused integration tests are
-  available in CI.
+  progress. Until the dedicated server container and scripted harness ship,
+  only the CLI-focused integration tests are available in CI.
 - Windows packaging is being stabilised; binaries built from source require the
-  Visual C++ redistributables that ship with Visual Studio 2022.
+  Visual C++ redistributables that ship with Visual Studio 2022. The NSIS
+  installer prototype remains manual.
+- Coordinator invite rejection paths lack automated coverage until the
+  integration suite can replay invalid code and offline-coordinator scenarios.
 
 ## Upgrade Notes
 

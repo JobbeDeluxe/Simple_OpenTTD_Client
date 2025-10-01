@@ -14,6 +14,13 @@ date once a task is complete. Add notes or issue links for any failures.
 | Localisation | Confirm English and German strings render correctly in menus, tooltips, and status updates. | | | ☐ | |
 | Regression | Log defects with reproduction steps, screenshots, and savegames as needed. | | | ☐ | |
 
+## Session Schedule
+
+| Session | Focus | Window | Coordinator |
+|---------|-------|--------|-------------|
+| Desktop validation | Company creation, UI regression sweep, localisation checks. | Week of 2024-06-10 | QA Team Alpha |
+| Headless verification | Dedicated mode metadata, coordinator invite workflows. | Week of 2024-06-17 | QA Team Beta |
+
 ## Execution Guidance
 
 - When testing against public servers, coordinate with the community moderators
