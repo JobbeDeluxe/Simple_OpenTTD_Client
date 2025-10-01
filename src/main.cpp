@@ -3,6 +3,7 @@
 #include "network/coordinator_client.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <chrono>
 #include <cstddef>
@@ -14,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 
 namespace {
@@ -252,103 +254,131 @@ void emit_registration_summary(const sotc::LaunchOptions &options) {
     std::cout << "payload_hex=" << payload_stream.str() << '\n';
 }
 
-bool apply_config_key(std::string_view key, std::string_view value, sotc::LaunchOptions &options) {
+enum class ConfigKeyApplyResult {
+    Applied,
+    InvalidValue,
+    Unknown,
+};
+
+[[nodiscard]] bool is_known_config_key(std::string_view key) {
+    static constexpr std::array known_keys{
+        std::string_view{"server_host"},
+        std::string_view{"server_port"},
+        std::string_view{"player_name"},
+        std::string_view{"headless"},
+        std::string_view{"coordinator_host"},
+        std::string_view{"coordinator_port"},
+        std::string_view{"server_game_type"},
+        std::string_view{"game_type"},
+        std::string_view{"invite_code"},
+        std::string_view{"listed_publicly"},
+        std::string_view{"allow_direct"},
+        std::string_view{"allow_stun"},
+        std::string_view{"allow_turn"},
+        std::string_view{"heartbeat_interval"},
+        std::string_view{"advertised_grfs"},
+    };
+
+    return std::find(known_keys.begin(), known_keys.end(), key) != known_keys.end();
+}
+
+ConfigKeyApplyResult apply_config_key(std::string_view key, std::string_view value, sotc::LaunchOptions &options) {
     if (key == "server_host") {
         options.server_host = std::string{value};
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "server_port") {
         std::uint16_t port = 0;
         if (!parse_uint16(value, port)) {
             std::cerr << "Invalid server_port value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.server_port = port;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "player_name") {
         options.player_name = std::string{value};
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "headless") {
         bool flag = false;
         if (!parse_bool(value, flag)) {
             std::cerr << "Invalid headless value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.headless = flag;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "coordinator_host") {
         options.coordinator_host = std::string{value};
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "coordinator_port") {
         std::uint16_t port = 0;
         if (!parse_uint16(value, port)) {
             std::cerr << "Invalid coordinator_port value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.coordinator_port = port;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "server_game_type" || key == "game_type") {
         sotc::network::ServerGameType type = sotc::network::ServerGameType::Public;
         if (!parse_server_game_type(value, type)) {
             std::cerr << "Invalid server_game_type value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.server_game_type = type;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "invite_code") {
         options.invite_code = std::string{value};
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "listed_publicly") {
         bool flag = false;
         if (!parse_bool(value, flag)) {
             std::cerr << "Invalid listed_publicly value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.listed_publicly = flag;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "allow_direct") {
         bool flag = false;
         if (!parse_bool(value, flag)) {
             std::cerr << "Invalid allow_direct value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.allow_direct = flag;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "allow_stun") {
         bool flag = false;
         if (!parse_bool(value, flag)) {
             std::cerr << "Invalid allow_stun value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.allow_stun = flag;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "allow_turn") {
         bool flag = false;
         if (!parse_bool(value, flag)) {
             std::cerr << "Invalid allow_turn value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.allow_turn = flag;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "heartbeat_interval") {
         std::chrono::seconds heartbeat{};
         if (!parse_seconds(value, heartbeat)) {
             std::cerr << "Invalid heartbeat_interval value: " << value << '\n';
-            return false;
+            return ConfigKeyApplyResult::InvalidValue;
         }
         options.heartbeat_interval = heartbeat;
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
     if (key == "advertised_grfs") {
         options.advertised_grfs.clear();
@@ -360,9 +390,9 @@ bool apply_config_key(std::string_view key, std::string_view value, sotc::Launch
                 options.advertised_grfs.push_back(std::move(token));
             }
         }
-        return true;
+        return ConfigKeyApplyResult::Applied;
     }
-    return false;
+    return ConfigKeyApplyResult::Unknown;
 }
 
 bool load_config_file(const std::string &path, sotc::LaunchOptions &options) {
@@ -374,6 +404,9 @@ bool load_config_file(const std::string &path, sotc::LaunchOptions &options) {
 
     std::string line;
     std::size_t line_number = 0;
+    bool success = true;
+    std::unordered_set<std::string> seen_keys;
+
     while (std::getline(input, line)) {
         ++line_number;
         const auto trimmed = trim_copy(line);
@@ -387,12 +420,33 @@ bool load_config_file(const std::string &path, sotc::LaunchOptions &options) {
         }
         const auto key = trim_copy(std::string_view{trimmed}.substr(0, equals));
         const auto value = trim_copy(std::string_view{trimmed}.substr(equals + 1));
-        if (!apply_config_key(key, value, options) && !key.empty()) {
-            std::cerr << "Unknown configuration key '" << key << "' at line " << line_number << '\n';
+        const std::string key_string{key};
+
+        if (is_known_config_key(key)) {
+            const auto insertion = seen_keys.insert(key_string);
+            if (!insertion.second) {
+                std::cerr << "Duplicate configuration key '" << key << "' at line " << line_number << '\n';
+                success = false;
+                continue;
+            }
+        }
+
+        switch (apply_config_key(key, value, options)) {
+        case ConfigKeyApplyResult::Applied:
+            break;
+        case ConfigKeyApplyResult::InvalidValue:
+            success = false;
+            break;
+        case ConfigKeyApplyResult::Unknown:
+            if (!key_string.empty()) {
+                std::cerr << "Unknown configuration key '" << key_string << "' at line " << line_number << '\n';
+                success = false;
+            }
+            break;
         }
     }
 
-    return true;
+    return success;
 }
 
 } // namespace
