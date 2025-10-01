@@ -140,7 +140,18 @@ ctest --label-regex integration
 
 The initial harness validates that the command-line interface correctly merges
 configuration file values with CLI overrides and generates a coordinator
-registration payload that matches the documented OpenTTD 14.1 schema.
+registration payload that matches the documented OpenTTD 14.1 schema. Track
+progress and coverage expansion in `docs/QUALITY_ASSURANCE_PLAN.md`.
+
+## Release Preparation
+
+- Draft release notes live in `docs/RELEASE_NOTES_0.1.0.md` and will be updated
+  as Phase 3 items are signed off.
+- Manual verification tasks are tracked in `docs/MANUAL_TEST_CHECKLIST.md` to
+  provide an auditable record ahead of tagging builds.
+- Windows packaging helpers are shipped under `tools/package_windows.ps1`. Run
+  the script after building `sotc.exe` to produce ZIP artefacts and an installer
+  placeholder ready for NSIS integration.
 
 ## Contributing
 1. Fork and clone the repository.
