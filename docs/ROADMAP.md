@@ -19,6 +19,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [x] Update serialization/deserialization logic.
 - [ ] Implement GUI adjustments for new features.
   - [x] Prototype coordinator-aware configuration panels in the client shell.
+  - [x] Render coordinator, access-control, and connectivity settings in the textual preview.
 - [ ] Ensure compatibility with dedicated server management tools.
 
 ## Phase 3 – Quality Assurance & Release
