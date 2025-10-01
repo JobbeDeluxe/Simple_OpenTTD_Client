@@ -18,6 +18,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [x] Port networking layer to OpenTTD 14.1 protocol changes.
 - [x] Update serialization/deserialization logic.
 - [ ] Implement GUI adjustments for new features.
+  - [x] Prototype coordinator-aware configuration panels in the client shell.
 - [ ] Ensure compatibility with dedicated server management tools.
 
 ## Phase 3 – Quality Assurance & Release
