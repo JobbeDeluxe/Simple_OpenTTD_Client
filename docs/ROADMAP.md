@@ -28,4 +28,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [ ] Package Windows binaries (installer/ZIP).
 - [ ] Draft release notes and user documentation.
 
+Refer to `docs/QUALITY_ASSURANCE_PLAN.md` for detailed steps, coverage goals,
+and exit criteria for each item in this phase.
+
 Progress will be tracked via GitHub issues and milestone boards once the repository is published.
