@@ -141,7 +141,8 @@ ctest --label-regex integration
 The initial harness validates that the command-line interface correctly merges
 configuration file values with CLI overrides and generates a coordinator
 registration payload that matches the documented OpenTTD 14.1 schema. Track
-progress and coverage expansion in `docs/QUALITY_ASSURANCE_PLAN.md`.
+progress and coverage expansion in `docs/QUALITY_ASSURANCE_PLAN.md` and consult
+`docs/PHASE3_NEXT_STEPS.md` for the current action checklist.
 
 ## Release Preparation
 
