@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <span>
 #include <vector>
 
 namespace sotc::network {
@@ -46,6 +47,43 @@ void append_string(std::vector<std::byte> &buffer, const std::string &value) {
     for (unsigned char ch : value) {
         buffer.push_back(static_cast<std::byte>(ch));
     }
+}
+
+[[nodiscard]] std::uint8_t read_uint8(std::span<const std::byte> payload, std::size_t &offset) {
+    if (offset >= payload.size()) {
+        throw std::out_of_range{"Coordinator payload ended unexpectedly while reading uint8"};
+    }
+    return std::to_integer<std::uint8_t>(payload[offset++]);
+}
+
+[[nodiscard]] std::uint16_t read_uint16_be(std::span<const std::byte> payload, std::size_t &offset) {
+    if (offset + 1 >= payload.size()) {
+        throw std::out_of_range{"Coordinator payload ended unexpectedly while reading uint16"};
+    }
+    const auto high = std::to_integer<std::uint8_t>(payload[offset++]);
+    const auto low = std::to_integer<std::uint8_t>(payload[offset++]);
+    return static_cast<std::uint16_t>((static_cast<std::uint16_t>(high) << 8U) | low);
+}
+
+[[nodiscard]] std::string read_string(
+    std::span<const std::byte> payload,
+    std::size_t &offset,
+    std::size_t max_length,
+    std::string_view field_name) {
+    const auto length = read_uint16_be(payload, offset);
+    if (length > max_length) {
+        throw std::length_error{std::string{"Coordinator "} + std::string{field_name} + " exceeds supported length"};
+    }
+    if (offset + length > payload.size()) {
+        throw std::out_of_range{"Coordinator payload ended unexpectedly while reading string"};
+    }
+
+    std::string value;
+    value.reserve(length);
+    for (std::size_t index = 0; index < length; ++index) {
+        value.push_back(static_cast<char>(std::to_integer<unsigned char>(payload[offset++])));
+    }
+    return value;
 }
 
 } // namespace
@@ -111,6 +149,41 @@ std::vector<std::byte> CoordinatorHandshakeFrame::serialize() const {
     }
 
     return buffer;
+}
+
+CoordinatorHandshakeFrame CoordinatorHandshakeFrame::deserialize(std::span<const std::byte> payload) {
+    CoordinatorHandshakeFrame frame{};
+    std::size_t offset = 0;
+
+    frame.coordinator_version = read_uint8(payload, offset);
+    frame.game_info_version = read_uint8(payload, offset);
+    frame.admin_version = read_uint8(payload, offset);
+    frame.listen_port = read_uint16_be(payload, offset);
+    frame.heartbeat_seconds = read_uint16_be(payload, offset);
+    frame.server_game_type = read_uint8(payload, offset);
+    frame.nat_capabilities = read_uint8(payload, offset);
+    frame.public_listing = read_uint8(payload, offset);
+
+    frame.server_name = read_string(payload, offset, NETWORK_MAX_SERVER_NAME_LENGTH, "server name");
+    frame.invite_code = read_string(payload, offset, NETWORK_MAX_INVITE_CODE_LENGTH, "invite code");
+
+    const auto grf_count = read_uint8(payload, offset);
+    if (grf_count > NETWORK_MAX_GRF_COUNT) {
+        throw std::length_error{"Coordinator payload lists more GRFs than supported"};
+    }
+
+    frame.newgrfs.clear();
+    frame.newgrfs.reserve(grf_count);
+    for (std::uint8_t index = 0; index < grf_count; ++index) {
+        frame.newgrfs.emplace_back(
+            read_string(payload, offset, NETWORK_MAX_SERVER_NAME_LENGTH, "GRF identifier"));
+    }
+
+    if (offset != payload.size()) {
+        throw std::invalid_argument{"Coordinator payload contains unexpected trailing data"};
+    }
+
+    return frame;
 }
 
 std::string describe_capabilities(std::uint8_t nat_capabilities) {

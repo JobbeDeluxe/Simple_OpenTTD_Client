@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -59,6 +60,7 @@ struct CoordinatorHandshakeFrame {
     std::vector<std::string> newgrfs{};
 
     [[nodiscard]] std::vector<std::byte> serialize() const;
+    [[nodiscard]] static CoordinatorHandshakeFrame deserialize(std::span<const std::byte> payload);
 };
 
 class CoordinatorClient {
