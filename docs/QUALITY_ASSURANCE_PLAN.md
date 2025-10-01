@@ -38,6 +38,12 @@ file, applies CLI overrides, and asserts that both `--dump-launch-options` and
 schema. This provides early regression coverage for configuration parsing and
 payload generation while the full server-backed suite is being implemented.
 
+A companion script, `tests/integration/test_invalid_inputs.py`, exercises
+malformed heartbeat intervals and configuration flags to confirm the
+client exits with a failure status while emitting clear diagnostics.
+These checks seed the negative coverage required for Phase 3 while the
+server-backed scenarios are developed.
+
 ## Manual Gameplay Checklist
 
 Purpose: verify end-to-end playability, UI expectations, and behavioural
