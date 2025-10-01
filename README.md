@@ -18,6 +18,21 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 ## Current Status
 The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation plan, `docs/REFERENCES.md` for collected research material, and `docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences between OpenTTD 1.10.x and 14.1.
 
+## Developer Setup
+For a guided walkthrough of the toolchain requirements and helper scripts, see [docs/DEVELOPER_SETUP.md](docs/DEVELOPER_SETUP.md).
+
+Quick start for Unix-like environments:
+
+```bash
+./tools/bootstrap_vcpkg.sh
+```
+
+On Windows, run the PowerShell helper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\bootstrap_vcpkg.ps1
+```
+
 ## Building
 The project uses CMake 3.21 or newer. Out-of-tree builds are recommended to keep generated artefacts separate from the source tree.
 

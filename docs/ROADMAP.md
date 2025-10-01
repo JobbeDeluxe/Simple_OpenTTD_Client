@@ -12,7 +12,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [x] Create CMake-based build configuration for Windows (MSVC) and Linux.
 - [x] Integrate vcpkg or FetchContent for dependencies (SDL2, libcurl, zlib, etc.).
 - [x] Set up continuous integration for Windows and Linux builds.
-- [ ] Provide developer setup scripts and documentation.
+- [x] Provide developer setup scripts and documentation.
 
 ## Phase 2 – Core Client Port
 - [ ] Port networking layer to OpenTTD 14.1 protocol changes.
