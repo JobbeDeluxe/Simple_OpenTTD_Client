@@ -7,7 +7,9 @@
 #include <iostream>
 #include <string_view>
 #include <thread>
+#include <utility>
 
+#include "gui/configuration_preview.hpp"
 #include "network/coordinator_client.hpp"
 
 namespace sotc {
@@ -46,6 +48,20 @@ namespace {
     return description;
 }
 
+[[nodiscard]] std::string build_server_name(const LaunchOptions &options) {
+    if (options.player_name.empty()) {
+        return std::string{"Simple OpenTTD Client"};
+    }
+    return options.player_name + "'s game";
+}
+
+[[nodiscard]] std::string format_endpoint(const std::string &host, std::uint16_t port) {
+    std::string endpoint = host.empty() ? std::string{"<not set>"} : host;
+    endpoint += ':';
+    endpoint += std::to_string(port);
+    return endpoint;
+}
+
 } // namespace
 
 ClientApp::ClientApp() = default;
@@ -62,10 +78,14 @@ void ClientApp::run() {
 
     sotc::network::CoordinatorClient coordinator{};
     sotc::network::RegistrationConfig registration{};
-    registration.server_name = options_.player_name.empty()
-                                  ? std::string{"Simple OpenTTD Client"}
-                                  : options_.player_name + "'s game";
-    registration.listen_port = static_cast<std::uint16_t>(options_.server_port);
+    registration.server_name = build_server_name(options_);
+    registration.coordinator_host = options_.coordinator_host.empty()
+                                      ? std::string{"coordinator.openttd.org"}
+                                      : options_.coordinator_host;
+    registration.coordinator_port = options_.coordinator_port == 0
+                                        ? network::NETWORK_COORDINATOR_SERVER_PORT
+                                        : options_.coordinator_port;
+    registration.listen_port = options_.server_port;
     registration.listed_publicly = options_.listed_publicly && !options_.headless;
     registration.server_game_type = options_.server_game_type;
     registration.invite_code = options_.invite_code;
@@ -116,7 +136,10 @@ void ClientApp::log_startup_info() const {
     std::cout << "Launching client with configuration:\n";
     std::cout << "  Server: " << (options_.server_host.empty() ? "<not set>" : options_.server_host)
               << ':' << options_.server_port << '\n';
+    std::cout << "  Coordinator: " << format_endpoint(options_.coordinator_host, options_.coordinator_port)
+              << '\n';
     std::cout << "  Player: " << (options_.player_name.empty() ? "<anonymous>" : options_.player_name) << '\n';
+    std::cout << "  Advertised name: " << build_server_name(options_) << '\n';
     std::cout << "  Headless: " << (options_.headless ? "yes" : "no") << '\n';
     std::cout << "  Game type: " << to_string(options_.server_game_type) << '\n';
     std::cout << "  Public listing: " << (options_.listed_publicly ? "yes" : "no") << '\n';
@@ -126,36 +149,75 @@ void ClientApp::log_startup_info() const {
 }
 
 void ClientApp::render_gui_preview() const {
-    std::cout << "\n=== Session Configuration ===\n";
-    std::cout << "Player identity: "
-              << (options_.player_name.empty() ? "<anonymous>" : options_.player_name) << '\n';
-    std::cout << "Preferred server: "
-              << (options_.server_host.empty() ? "<not set>" : options_.server_host)
-              << ':' << options_.server_port << "\n\n";
+    using sotc::ui::FieldLine;
+    using sotc::ui::Section;
+    using sotc::ui::ToggleLine;
 
-    std::cout << "[Server Visibility]\n";
-    std::cout << "  Game type: " << to_string(options_.server_game_type) << '\n';
-    std::cout << "  Listed on coordinator: " << (options_.listed_publicly ? "yes" : "no") << '\n';
-    if (!options_.invite_code.empty()) {
-        std::cout << "  Invite code: " << options_.invite_code << '\n';
-    } else {
-        std::cout << "  Invite code: <not set>\n";
+    const bool listing_enabled = options_.listed_publicly && !options_.headless;
+
+    Section overview{};
+    overview.title = "Session Overview";
+    overview.fields.push_back(FieldLine{"Player identity", options_.player_name.empty() ? "<anonymous>" : options_.player_name});
+    overview.fields.push_back(FieldLine{"Advertised server", build_server_name(options_)});
+    overview.fields.push_back(FieldLine{"Preferred server", format_endpoint(options_.server_host, options_.server_port)});
+    overview.fields.push_back(FieldLine{"Launch mode", options_.headless ? "Headless (no GUI)" : "Interactive"});
+
+    Section registration{};
+    registration.title = "Coordinator Registration";
+    registration.fields.push_back(FieldLine{"Coordinator endpoint", format_endpoint(options_.coordinator_host, options_.coordinator_port)});
+    registration.fields.push_back(FieldLine{"Listing visibility", listing_enabled ? "Public listing" : "Hidden"});
+    registration.fields.push_back(FieldLine{"Game type", std::string{to_string(options_.server_game_type)}});
+    registration.fields.push_back(FieldLine{"Invite code", options_.invite_code.empty() ? "<not set>" : options_.invite_code});
+    registration.fields.push_back(FieldLine{"Heartbeat interval", std::to_string(options_.heartbeat_interval.count()) + "s"});
+
+    if (!options_.listed_publicly) {
+        registration.notes.emplace_back("Server will not appear in coordinator listings; share connection details manually.");
+    }
+    if (options_.headless && options_.listed_publicly) {
+        registration.notes.emplace_back("Headless mode suppresses public listings for safety.");
+    }
+    switch (options_.server_game_type) {
+    case network::ServerGameType::FriendsOnly:
+        registration.notes.emplace_back("Friends-only sessions remain discoverable through friend lists but are hidden from the public lobby.");
+        break;
+    case network::ServerGameType::InviteOnly:
+        registration.notes.emplace_back("Invite-only sessions require players to join with the provided invite code.");
+        break;
+    case network::ServerGameType::Public:
+        break;
     }
 
-    std::cout << "\n[Connectivity]\n";
-    std::cout << "  Allowed pathways: " << describe_nat_policy(options_) << '\n';
-    std::cout << "  Coordinator heartbeat: every " << options_.heartbeat_interval.count() << "s\n";
+    Section connectivity{};
+    connectivity.title = "Connectivity Options";
+    connectivity.toggles.push_back(ToggleLine{"Direct UDP", options_.allow_direct, "Attempt direct client connections when NAT allows."});
+    connectivity.toggles.push_back(ToggleLine{"STUN assist", options_.allow_stun, "Use coordinator STUN services for UDP hole punching."});
+    connectivity.toggles.push_back(ToggleLine{"TURN relay", options_.allow_turn, "Relay traffic through coordinator TURN servers when direct paths fail."});
+    connectivity.notes.emplace_back("Effective NAT capabilities: " + describe_nat_policy(options_));
+    if (!options_.allow_direct && !options_.allow_stun && !options_.allow_turn) {
+        connectivity.notes.emplace_back("No connectivity pathways selected; clients will be unable to reach this server.");
+    } else if (!options_.allow_turn) {
+        connectivity.notes.emplace_back("TURN is disabled; players behind strict NATs may encounter connection issues.");
+    }
 
-    std::cout << "\n[Advertised Content]\n";
+    Section content{};
+    content.title = "Advertised Content";
     if (options_.advertised_grfs.empty()) {
-        std::cout << "  No NewGRFs configured for advertising.\n";
+        content.notes.emplace_back("No NewGRFs configured for coordinator advertising.");
     } else {
         for (const auto &grf_id : options_.advertised_grfs) {
-            std::cout << "  - " << grf_id << '\n';
+            content.notes.emplace_back("NewGRF: " + grf_id);
         }
+        content.notes.emplace_back("Ensure joining clients have the listed NewGRFs installed.");
     }
 
-    std::cout << '\n';
+    std::vector<Section> sections;
+    sections.reserve(4);
+    sections.emplace_back(std::move(overview));
+    sections.emplace_back(std::move(registration));
+    sections.emplace_back(std::move(connectivity));
+    sections.emplace_back(std::move(content));
+
+    std::cout << '\n' << ui::render_sections(sections) << std::endl;
 }
 
 std::vector<std::string> discover_local_servers() {
