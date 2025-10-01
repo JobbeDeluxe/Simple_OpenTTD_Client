@@ -1,5 +1,6 @@
 add_library(sotc_core STATIC
     client_app.cpp
+    network/coordinator_client.cpp
 )
 
 target_include_directories(sotc_core
