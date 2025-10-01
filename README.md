@@ -24,7 +24,56 @@ plan, `docs/REFERENCES.md` for collected research material, and
 between OpenTTD 1.10.x and 14.1. The `sotc::network::CoordinatorClient`
 component included in the scaffold emits handshake payloads that match the 14.1
 coordinator protocol versions and limits, making it a foundation for the Phase 2
-networking work.
+networking work. The command-line launcher understands headless/dedicated
+options and exposes machine-readable dumps for integration with orchestration
+and management tooling.
+
+## Command-line usage
+
+The client accepts a mixture of positional arguments and long-form options. The
+positional arguments mirror the legacy scaffold (`[server_host] [player_name]`).
+Dedicated server management tools can rely on the new options to configure and
+inspect the launch configuration in an automated fashion.
+
+```
+./sotc_client --headless \
+  --server example.net:3979 \
+  --coordinator coordinator.openttd.org:3976 \
+  --player "City Builder" \
+  --game-type invite \
+  --invite-code ABC123 \
+  --advertised-grf 12345678 \
+  --dump-launch-options
+```
+
+Useful flags include:
+
+- `--headless` / `--no-headless` – toggle dedicated mode.
+- `--server HOST[:PORT]` and `--coordinator HOST[:PORT]` – update connection
+  endpoints.
+- `--game-type` – select between `public`, `friends`, or `invite` sessions.
+- `--advertised-grf` – append advertised NewGRFs (repeatable).
+- `--dump-launch-options` – emit key/value pairs describing the resolved
+  configuration and exit.
+- `--dump-registration` – preview the coordinator registration payload in a
+  machine-readable format.
+- `--config FILE` – load values from an INI-style configuration file understood
+  by automation wrappers.
+
+Configuration files accept `key = value` pairs with optional comments prefixed
+by `#` or `;`. The following snippet demonstrates a headless configuration:
+
+```
+server_host = gameserver.local
+server_port = 3979
+player_name = Automation Bot
+headless = true
+listed_publicly = false
+game_type = invite
+invite_code = TEAM-ACCESS
+allow_turn = true
+advertised_grfs = 12345678,90ABCDEF
+```
 
 ## Developer Setup
 For a guided walkthrough of the toolchain requirements and helper scripts, see [docs/DEVELOPER_SETUP.md](docs/DEVELOPER_SETUP.md).
