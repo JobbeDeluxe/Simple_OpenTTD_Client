@@ -126,6 +126,22 @@ The generated Visual Studio solution configures common warnings and disables leg
 support is enabled by default; disable it with `-DSOTC_USE_OPENSSL=OFF` if you do not need secure transports or prefer a lighter
 dependency set.
 
+## Testing
+
+Phase 3 introduces automated regression coverage backed by CTest. Enable the
+tests when configuring CMake and then execute the labelled suite:
+
+```bash
+cmake -S . -B build/tests -DSOTC_BUILD_TESTS=ON
+cmake --build build/tests
+cd build/tests
+ctest --label-regex integration
+```
+
+The initial harness validates that the command-line interface correctly merges
+configuration file values with CLI overrides and generates a coordinator
+registration payload that matches the documented OpenTTD 14.1 schema.
+
 ## Contributing
 1. Fork and clone the repository.
 2. Configure dependencies (see `docs/DEPENDENCIES.md`).
