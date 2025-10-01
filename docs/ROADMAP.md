@@ -20,7 +20,7 @@ This document tracks the work required to deliver a modernized OpenTTD client de
 - [ ] Implement GUI adjustments for new features.
   - [x] Prototype coordinator-aware configuration panels in the client shell.
   - [x] Render coordinator, access-control, and connectivity settings in the textual preview.
-- [ ] Ensure compatibility with dedicated server management tools.
+- [x] Ensure compatibility with dedicated server management tools.
 
 ## Phase 3 – Quality Assurance & Release
 - [ ] Automated regression tests against OpenTTD 14.1 server.
