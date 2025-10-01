@@ -5,6 +5,8 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 ## Project Goals
 - Maintain feature parity with the original `cmclient` where possible.
 - Ensure compatibility with OpenTTD 14.1 network and gameplay features.
+- Provide a modernised networking layer capable of speaking the OpenTTD 14.1
+  coordinator protocol.
 - Provide straightforward build and packaging instructions for Windows.
 
 ## Repository Layout
@@ -16,7 +18,13 @@ This repository aims to provide a modernized fork of the `cmclient` project that
 - `tools/` – Developer utilities and scripts.
 
 ## Current Status
-The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation plan, `docs/REFERENCES.md` for collected research material, and `docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences between OpenTTD 1.10.x and 14.1.
+The project is currently a scaffold. See `docs/ROADMAP.md` for the implementation
+plan, `docs/REFERENCES.md` for collected research material, and
+`docs/OPEN_TTD_PROTOCOL_DELTAS.md` for a breakdown of the networking differences
+between OpenTTD 1.10.x and 14.1. The `sotc::network::CoordinatorClient`
+component included in the scaffold emits handshake payloads that match the 14.1
+coordinator protocol versions and limits, making it a foundation for the Phase 2
+networking work.
 
 ## Developer Setup
 For a guided walkthrough of the toolchain requirements and helper scripts, see [docs/DEVELOPER_SETUP.md](docs/DEVELOPER_SETUP.md).
